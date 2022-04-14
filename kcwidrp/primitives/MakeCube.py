@@ -45,29 +45,30 @@ def make_cube_helper(argument):
     else:
         slice_del = None
     # do the warping
-    warped = tf.warp(slice_img, tform, order=3,
+    # logger.info(f"Warp Order: {argument['order']}")
+    warped = tf.warp(slice_img, tform, order=argument['order'],
                      output_shape=(ysize, xsize))
-    varped = tf.warp(slice_var, tform, order=3,
+    varped = tf.warp(slice_var, tform, order=argument['order'],
                      output_shape=(ysize, xsize))
-    marped = tf.warp(slice_msk, tform, order=3,
+    marped = tf.warp(slice_msk, tform, order=argument['order'],
                      output_shape=(ysize, xsize))
-    farped = tf.warp(slice_flg, tform, order=3,
+    farped = tf.warp(slice_flg, tform, order=argument['order'],
                      output_shape=(ysize, xsize), preserve_range=True)
 
     if slice_obj is not None:
-        oarped = tf.warp(slice_obj, tform, order=3,
+        oarped = tf.warp(slice_obj, tform, order=argument['order'],
                          output_shape=(ysize, xsize))
     else:
         oarped = None
 
     if slice_sky is not None:
-        sarped = tf.warp(slice_sky, tform, order=3,
+        sarped = tf.warp(slice_sky, tform, order=argument['order'],
                          output_shape=(ysize, xsize))
     else:
         sarped = None
 
     if slice_del is not None:
-        darped = tf.warp(slice_del, tform, order=3,
+        darped = tf.warp(slice_del, tform, order=argument['order'],
                          output_shape=(ysize, xsize), preserve_range=True)
     else:
         darped = None
@@ -176,7 +177,8 @@ class MakeCube(BasePrimitive):
                     'flg': data_flg,
                     'xsize': xsize,
                     'ysize': ysize,
-                    'logger': self.logger
+                    'logger': self.logger,
+                    'order': self.config.instrument.warp_order
                 }
                 if obj is not None:
                     arguments['obj'] = data_obj
@@ -185,7 +187,7 @@ class MakeCube(BasePrimitive):
                 if dew is not None:
                     arguments['del'] = data_dew
                 my_arguments.append(arguments)
-
+            self.logger.info(f"Warp Order: {arguments['order']}")
             p = Pool()
             results = p.map(make_cube_helper, list(my_arguments))
             p.close()

@@ -90,8 +90,10 @@ class SubtractSky(BasePrimitive):
                 self.logger.warning("Bad exposure times (obj, sky): %.1f, %1f"
                                     % (obtime, sktime))
                 skscl = 1.
-            else:
+            elif self.config.instrument.sky_scale_factor == -1:
                 skscl = obtime / sktime
+            else:
+                skscl = self.config.instrument.sky_scale_factor
             self.logger.info("Sky scale factor = %.3f" % skscl)
 
             # do the subtraction
