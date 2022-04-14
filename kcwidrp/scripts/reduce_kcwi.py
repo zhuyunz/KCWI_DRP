@@ -156,16 +156,13 @@ def main():
         print("Phase 2: IDL Stage 5-6")
     elif args.stage==3:
         from kcwidrp.pipelines.kcwi_pipeline3 import Kcwi_pipeline
-        print("Phase 3: IDL Stage 7-8")
-    elif args.stage==4:
-        from kcwidrp.pipelines.kcwi_pipeline4 import Kcwi_pipeline
-        print("Phase 4: IDL Stage 8 (med_bl.fits)")
+        print("Phase 3: IDL Stage 7-8 or IDL Stage 8 (med_bl.fits)")
     elif args.stage==0:
-        from kcwidrp.pipelines.kcwi_pipeline_makecube import Kcwi_pipeline
-        print("IDL Stage 6-8 (cube construction test)")
+        from kcwidrp.pipelines.kcwi_pipeline_testing import Kcwi_pipeline
+        print("KCWI Pipeline Testing")
     else:
         from kcwidrp.pipelines.kcwi_pipeline import Kcwi_pipeline
-        print("Invalid stage choice: going with default (full) reduction")
+        print("Invalid stage choice [0..3]: going with default (full) reduction")
 
     try:
         framework = Framework(Kcwi_pipeline, framework_config_fullpath)
