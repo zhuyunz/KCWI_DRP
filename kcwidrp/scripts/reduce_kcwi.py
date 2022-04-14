@@ -22,7 +22,7 @@ import traceback
 import os
 import pkg_resources
 
-from kcwidrp.pipelines.kcwi_pipeline import Kcwi_pipeline
+# from kcwidrp.pipelines.kcwi_pipeline import Kcwi_pipeline
 from kcwidrp.core.kcwi_proctab import Proctab
 import logging.config
 
@@ -81,6 +81,11 @@ def _parse_arguments(in_args: list) -> argparse.Namespace:
     parser.add_argument("-p", "--proctab", dest='proctab', help='Proctab file',
                         default='kcwi.proc')
 
+    # breaking reduction into stages
+    parser.add_argument('-st', '--stage', dest='stage', type=int,
+                        help='Which stage of the reduction are we in?',
+                        default=None)
+
     out_args = parser.parse_args(in_args[1:])
     return out_args
 
@@ -97,7 +102,7 @@ def main():
         for in_frame in in_subset.index:
             arguments = Arguments(name=in_frame)
             framework.append_event('next_file', arguments, recurrent=True)
-    
+
     def process_list(in_list):
         for in_frame in in_list:
             arguments = Arguments(name=in_frame)
@@ -139,6 +144,28 @@ def main():
 
     # check for the output directory
     check_directory(kcwi_config.output_directory)
+
+    if args.stage is None:
+        from kcwidrp.pipelines.kcwi_pipeline import Kcwi_pipeline
+        print("Defualt Full Reduction")
+    elif args.stage==1:
+        from kcwidrp.pipelines.kcwi_pipeline1 import Kcwi_pipeline
+        print("Phase 1: IDL Stage 1-5")
+    elif args.stage==2:
+        from kcwidrp.pipelines.kcwi_pipeline2 import Kcwi_pipeline
+        print("Phase 2: IDL Stage 5-6")
+    elif args.stage==3:
+        from kcwidrp.pipelines.kcwi_pipeline3 import Kcwi_pipeline
+        print("Phase 3: IDL Stage 7-8")
+    elif args.stage==4:
+        from kcwidrp.pipelines.kcwi_pipeline4 import Kcwi_pipeline
+        print("Phase 4: IDL Stage 8 (med_bl.fits)")
+    elif args.stage==0:
+        from kcwidrp.pipelines.kcwi_pipeline_makecube import Kcwi_pipeline
+        print("IDL Stage 6-8 (cube construction test)")
+    else:
+        from kcwidrp.pipelines.kcwi_pipeline import Kcwi_pipeline
+        print("Invalid stage choice: going with default (full) reduction")
 
     try:
         framework = Framework(Kcwi_pipeline, framework_config_fullpath)
