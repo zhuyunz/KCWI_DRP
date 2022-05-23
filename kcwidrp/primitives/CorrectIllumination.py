@@ -24,7 +24,6 @@ class CorrectIllumination(BasePrimitive):
         tab = self.context.proctab.search_proctab(frame=self.action.args.ccddata,
                                              target_type=target_type,
                                              nearest=True)
-        import pdb; pdb.set_trace()
         if len(tab) <= 0:
             # next look for twilight flat
             target_type = self.config.instrument.flat_order[1]
