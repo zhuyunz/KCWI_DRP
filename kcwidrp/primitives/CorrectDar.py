@@ -211,7 +211,7 @@ class CorrectDar(BasePrimitive):
                      image_size[2] + 2 * padding_x), dtype=np.float64)
                 output_del[:, padding_y:(padding_y + image_size[1]),
                            padding_x:(padding_x + image_size[2])] = dew.data
-
+        print('linear order!')
         # Perform correction
         for j, wl in enumerate(waves):
             dispersion_correction = atm_disper(wref, wl, airmass)
@@ -224,9 +224,9 @@ class CorrectDar(BasePrimitive):
             output_stddev[j, :, :] = shift(output_stddev[j, :, :], (y_shift,
                                                                     x_shift))
             output_mask[j, :, :] = shift(output_mask[j, :, :], (y_shift,
-                                                                x_shift))
+                                                                x_shift), order=1)
             output_flags[j, :, :] = shift(output_flags[j, :, :], (y_shift,
-                                                                  x_shift))
+                                                                  x_shift), order=1)
         # for obj, sky if they exist
         if output_obj is not None:
             for j, wl in enumerate(waves):
