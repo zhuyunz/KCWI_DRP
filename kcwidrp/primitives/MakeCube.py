@@ -50,10 +50,10 @@ def make_cube_helper(argument):
                      output_shape=(ysize, xsize))
     varped = tf.warp(slice_var, tform, order=argument['order'],
                      output_shape=(ysize, xsize))
-    marped = tf.warp(slice_msk, tform, order=argument['order'],
-                     output_shape=(ysize, xsize))
-    farped = tf.warp(slice_flg, tform, order=argument['order'],
-                     output_shape=(ysize, xsize), preserve_range=True)
+    marped = tf.warp(slice_msk, tform, order=1,
+                     output_shape=(ysize, xsize)) # linear order
+    farped = tf.warp(slice_flg, tform, order=1,
+                     output_shape=(ysize, xsize), preserve_range=True) # linear order keeps all pixels
 
     if slice_obj is not None:
         oarped = tf.warp(slice_obj, tform, order=argument['order'],
@@ -187,7 +187,12 @@ class MakeCube(BasePrimitive):
                 if dew is not None:
                     arguments['del'] = data_dew
                 my_arguments.append(arguments)
-            self.logger.info(f"Warp Order: {arguments['order']}")
+
+            self.logger.info(f"Image cube order = {arguments['order']}")
+            self.logger.info(f"Std. Dev. cube order = {arguments['order']}")
+            self.logger.info(f"Mask cube order = 1")
+            self.logger.info(f"Flag cube order = 1")
+
             p = Pool()
             results = p.map(make_cube_helper, list(my_arguments))
             p.close()

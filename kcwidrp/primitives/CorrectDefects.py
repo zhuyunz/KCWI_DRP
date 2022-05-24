@@ -1,5 +1,5 @@
 from keckdrpframework.primitives.base_primitive import BasePrimitive
-from kcwidrp.primitives.kcwi_file_primitives import kcwi_fits_writer
+from kcwidrp.primitives.kcwi_file_primitives import kcwi_fits_writer, strip_fname, kcwi_fits_reader
 
 import numpy as np
 import pkg_resources
@@ -69,9 +69,42 @@ class CorrectDefects(BasePrimitive):
             self.logger.error("Defect list not found for %s" % full_path)
             self.action.args.ccddata.header[key] = (False, keycom)
 
+        # Correct Negative Values before CRR
+
+        # get root for maps
+        tab = self.context.proctab.search_proctab(
+            frame=self.action.args.ccddata, target_type='ARCLAMP',
+            target_group=self.action.args.groupid)
+        if len(tab) > 0:
+            # Wavelength map image
+            mroot = strip_fname(tab['filename'][-1])
+            wmf = mroot + '_wavemap.fits'
+            self.logger.info("Reading image: %s" % wmf)
+
+            if os.path.exists(os.path.join(self.config.instrument.cwd, 'redux', wmf)):
+                wavemap = kcwi_fits_reader(os.path.join(self.config.instrument.cwd, 'redux', wmf))[0]
+                wavegood0 = wavemap.header['WAVGOOD0']
+                wavegood1 = wavemap.header['WAVGOOD1']
+
+                in_slice = (wavemap.data != -1) & (wavemap.data > wavegood0) & (wavemap.data < wavegood1) #first condition is redundant
+                negative = (self.action.args.ccddata.data < 0)
+
+                self.action.args.ccddata.data[negative & in_slice] = np.nan #0
+                flags[negative & in_slice] += 1 # = saturated pixel (unaltered) officially, but this is really a low signal "bad" pixel
+                neg_pix = len(self.action.args.ccddata.data[negative & in_slice])
+        else:
+            self.logger.error("Geometry not solved!")
+            self.logger.info("Unable to read wavelength map")
+            self.logger.info("Unable to remove negative values")
+
+
         self.logger.info("Cleaned %d bad pixels" % number_of_bad_pixels)
         self.action.args.ccddata.header['NBPCLEAN'] = \
             (number_of_bad_pixels, 'number of bad pixels cleaned')
+
+        self.logger.info(f"Removed {neg_pix} ({100*(neg_pix/wavemap.data.size):.2f}%) pixels")
+        self.action.args.ccddata.header['NEG_PIX'] = \
+            (neg_pix, 'number of negative pixels')
 
         log_string = CorrectDefects.__module__
         self.action.args.ccddata.header['HISTORY'] = log_string

@@ -211,7 +211,11 @@ class CorrectDar(BasePrimitive):
                      image_size[2] + 2 * padding_x), dtype=np.float64)
                 output_del[:, padding_y:(padding_y + image_size[1]),
                            padding_x:(padding_x + image_size[2])] = dew.data
-        print('linear order!')
+
+        self.logger.info(f"Image cube DAR order = {self.config.instrument.DAR_shift_order}")
+        self.logger.info(f"Std. Dev. cube DAR order = {self.config.instrument.DAR_shift_order}")
+        self.logger.info(f"Mask cube DAR order = 1 (nearest neighbor)")
+        self.logger.info(f"Flag cube DAR order = 0 (nearest neighbor)")
         # Perform correction
         for j, wl in enumerate(waves):
             dispersion_correction = atm_disper(wref, wl, airmass)
@@ -220,13 +224,13 @@ class CorrectDar(BasePrimitive):
             y_shift = dispersion_correction * \
                 math.cos(projection_angle) / y_scale
             output_image[j, :, :] = shift(output_image[j, :, :], (y_shift,
-                                                                  x_shift))
+                                                                  x_shift), order=self.config.instrument.DAR_shift_order)
             output_stddev[j, :, :] = shift(output_stddev[j, :, :], (y_shift,
-                                                                    x_shift))
+                                                                    x_shift), order=self.config.instrument.DAR_shift_order)
             output_mask[j, :, :] = shift(output_mask[j, :, :], (y_shift,
-                                                                x_shift), order=1)
+                                                                x_shift), order=1, mode = 'nearest')
             output_flags[j, :, :] = shift(output_flags[j, :, :], (y_shift,
-                                                                  x_shift), order=1)
+                                                                  x_shift), order=0, mode = 'nearest')
         # for obj, sky if they exist
         if output_obj is not None:
             for j, wl in enumerate(waves):
