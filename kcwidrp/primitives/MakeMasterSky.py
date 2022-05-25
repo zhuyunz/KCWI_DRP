@@ -201,7 +201,6 @@ class MakeMasterSky(BaseImg):
         # log
         self.logger.info("Nknots = %d, min = %.2f, max = %.2f (A)" %
                          (n, np.min(bkpt), np.max(bkpt)))
-        print(fluxes[fluxes==np.nan])
         # do bspline fit
         sft0, gmask = Bspline.iterfit(waves, fluxes, fullbkpt=bkpt,
                                       upper=1, lower=1)
