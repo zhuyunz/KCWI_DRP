@@ -110,7 +110,7 @@ class SolveGeom(BasePrimitive):
         # Use extremes to define output size
         ysize = int((self.action.args.waveall1 - self.action.args.wave0out)
                     / dwout)
-        xsize = int(5. * self.action.args.reference_bar_separation) + 1
+        xsize = int(5. * self.action.args.reference_bar_separation) + 2
         self.logger.info("Output slices will be %d x %d px" % (xsize, ysize))
         # Now loop over slices and get relevant control points for each slice
         # Output variables
