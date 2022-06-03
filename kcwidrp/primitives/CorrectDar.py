@@ -228,9 +228,9 @@ class CorrectDar(BasePrimitive):
             output_stddev[j, :, :] = shift(output_stddev[j, :, :], (y_shift,
                                                                     x_shift), order=self.config.instrument.DAR_shift_order)
             output_mask[j, :, :] = shift(output_mask[j, :, :], (y_shift,
-                                                                x_shift), order=1, mode = 'nearest')
+                                                                x_shift), order=1, mode = 'constant')
             output_flags[j, :, :] = shift(output_flags[j, :, :], (y_shift,
-                                                                  x_shift), order=0, mode = 'nearest')
+                                                                  x_shift), order=0, mode = 'constant')
         # for obj, sky if they exist
         if output_obj is not None:
             for j, wl in enumerate(waves):

@@ -52,7 +52,7 @@ def make_cube_helper(argument):
                      output_shape=(ysize, xsize))
     marped = tf.warp(slice_msk, tform, order=1,
                      output_shape=(ysize, xsize)) # linear order
-    farped = tf.warp(slice_flg, tform, order=1,
+    farped = tf.warp(slice_flg, tform, order=0,
                      output_shape=(ysize, xsize), preserve_range=True) # linear order keeps all pixels
 
     if slice_obj is not None:
