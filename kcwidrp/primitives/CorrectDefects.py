@@ -84,17 +84,28 @@ class CorrectDefects(BasePrimitive):
             if os.path.exists(os.path.join(self.config.instrument.cwd, 'redux', wmf)):
                 wavemap = kcwi_fits_reader(os.path.join(self.config.instrument.cwd, 'redux', wmf))[0]
                 wavegood0 = wavemap.header['WAVGOOD0']
-                wavegood1 = wavemap.header['WAVGOOD1']-250
+                wavegood1 = wavemap.header['WAVGOOD1']
 
                 in_slice = (wavemap.data != -1) & (wavemap.data > wavegood0) & (wavemap.data < wavegood1) #first condition is redundant
-                negative = (self.action.args.ccddata.data < 0)
+                # print(f"Med: {np.median(self.action.args.ccddata.data):.3f}, Std: {np.std(self.action.args.ccddata.data):.3f}")
+                negative = (self.action.args.ccddata.data < -np.std(self.action.args.ccddata.data)) #median ~ 40
+                # print(np.min(self.action.args.ccddata.data))
                 flag_cond = (flags != 2)
 
-                self.action.args.ccddata.data[negative & in_slice & flag_cond] = self.config.instrument.CRR_SATLEVEL + 1 #np.nan #0
+
+                self.action.args.ccddata.data[negative & in_slice & flag_cond] = np.median(self.action.args.ccddata.data[in_slice]) # not the best solution, but will be ignored in the stacks
+
+                # indices = np.asarray(np.where(negative & in_slice & flag_cond)).T #self.config.instrument.CRR_SATLEVEL + 1 #np.nan #0
+
+                # print(indices)
+                # for i in range(len(indices)):
+                #     print(self.action.args.ccddata.data[indices[i][0],indices[i][1]])
+
+
                 flags[negative & in_slice & flag_cond] += 1 # = saturated pixel (unaltered) officially, but this is really a low signal "bad" pixel
                 neg_pix = len(self.action.args.ccddata.data[negative & in_slice & flag_cond])
 
-                self.logger.info(f"Removed {neg_pix} ({100*(neg_pix/wavemap.data.size):.2f}%) pixels")
+                self.logger.info(f"Removed {neg_pix} ({100*(neg_pix/wavemap.data.size):.3f}%) pixels")
                 self.action.args.ccddata.header['NEG_PIX'] = \
                     (neg_pix, 'number of negative pixels')
         else:

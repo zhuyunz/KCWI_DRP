@@ -47,13 +47,14 @@ class RemoveCosmicRays(BasePrimitive):
                     sigclip = 10.
 
             # convert flags extension to boolean array for astroscrappy (detect_cosmics doesn't know how to deal with NaNs!)
-            # flag_bool = (self.action.args.ccddata.flags == 1) # 0 is good, 1 is bad, 3 has already been taken care of
+            # flag_bool = (self.action.args.ccddata.flags > 0) # 0 is good, 1 is bad, 3 has already been taken care of
             # self.logger.info(f"Confirmed we've removed {len(self.action.args.ccddata.flags[flag_bool])} pixels")
             # crr_data = self.action.args.ccddata.data
             # crr_data[flag_bool] = 0 #just to be sure :-) [the code has satpixels = data >= satlevel though]
 
             mask, clean = detect_cosmics(
-                self.action.args.ccddata.data, gain=1.0, readnoise=read_noise,
+                self.action.args.ccddata.data, #ignore bad pixels
+                gain=1.0, readnoise=read_noise,
                 psffwhm=self.config.instrument.CRR_PSFFWHM,
                 sigclip=sigclip,
                 sigfrac=self.config.instrument.CRR_SIGFRAC,
@@ -63,7 +64,8 @@ class RemoveCosmicRays(BasePrimitive):
                 verbose=self.config.instrument.CRR_VERBOSE,
                 sepmed=self.config.instrument.CRR_SEPMED,
                 cleantype=self.config.instrument.CRR_CLEANTYPE,
-                satlevel = self.config.instrument.CRR_SATLEVEL)
+                satlevel = self.config.instrument.CRR_SATLEVEL,
+                niter = self.config.instrument.CRR_NITER)
 
             # clean[flag_bool] = np.nan # not needed, but don't want to deal with these later on!
 
