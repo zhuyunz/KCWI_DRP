@@ -148,13 +148,13 @@ def main():
     if args.stage is None:
         from kcwidrp.pipelines.kcwi_pipeline import Kcwi_pipeline
         print("Defualt Full Reduction")
-    elif args.stage==1:
+    elif args.stage=="1":
         from kcwidrp.pipelines.kcwi_pipeline1 import Kcwi_pipeline
         print("Phase 1: IDL Stage 1-5")
-    elif args.stage==2:
+    elif args.stage=="2":
         from kcwidrp.pipelines.kcwi_pipeline2 import Kcwi_pipeline
         print("Phase 2: IDL Stage 5-6")
-    elif args.stage==3:
+    elif args.stage=="3":
         from kcwidrp.pipelines.kcwi_pipeline3 import Kcwi_pipeline
         print("Phase 3: IDL Stage 7-8 or IDL Stage 8 (med_bl.fits)")
     elif args.stage=='sky':
