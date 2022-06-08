@@ -82,7 +82,7 @@ def _parse_arguments(in_args: list) -> argparse.Namespace:
                         default='kcwi.proc')
 
     # breaking reduction into stages
-    parser.add_argument('-st', '--stage', dest='stage', type=int,
+    parser.add_argument('-st', '--stage', dest='stage',
                         help='Which stage of the reduction are we in?',
                         default=None)
 
@@ -157,9 +157,12 @@ def main():
     elif args.stage==3:
         from kcwidrp.pipelines.kcwi_pipeline3 import Kcwi_pipeline
         print("Phase 3: IDL Stage 7-8 or IDL Stage 8 (med_bl.fits)")
-    elif args.stage==0:
-        from kcwidrp.pipelines.kcwi_pipeline_testing import Kcwi_pipeline
-        print("KCWI Pipeline Testing")
+    elif args.stage=='sky':
+        from kcwidrp.pipelines.kcwi_pipeline_testing_sky import Kcwi_pipeline
+        print("KCWI Pipeline Testing Sky")
+    elif args.stage=='invsens':
+        from kcwidrp.pipelines.kcwi_pipeline_testing_invsens import Kcwi_pipeline
+        print("KCWI Pipeline Testing Inverse Sensitivity")
     else:
         from kcwidrp.pipelines.kcwi_pipeline import Kcwi_pipeline
         print("Invalid stage choice [0..3]: going with default (full) reduction")
