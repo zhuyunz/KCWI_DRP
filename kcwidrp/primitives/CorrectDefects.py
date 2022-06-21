@@ -22,7 +22,8 @@ class CorrectDefects(BasePrimitive):
         keycom = 'cleaned bad pixels?'
 
         # Create flags for bad columns fixed
-        flags = np.zeros(self.action.args.ccddata.data.shape, dtype=np.uint8)
+        #flags = np.zeros(self.action.args.ccddata.data.shape, dtype=np.uint8)
+        flags = self.action.args.ccddata.flags
 
         # Nod and Shuffle?
         if self.action.args.nasmask and self.action.args.numopen > 1:

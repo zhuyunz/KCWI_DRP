@@ -24,6 +24,8 @@ class TrimOverscan(BasePrimitive):
         max_sec = max(tsec)
         # create new blank image
         new = np.zeros((max_sec[1]+1, max_sec[3]+1), dtype=np.float32)
+        new_mask = np.zeros((max_sec[1]+1, max_sec[3]+1), dtype=np.uint8)
+        new_flags = np.zeros((max_sec[1]+1, max_sec[3]+1), dtype=np.uint8)
         # loop over amps
         for ia in range(namps):
             # input range indices
@@ -39,6 +41,12 @@ class TrimOverscan(BasePrimitive):
             # transfer to new image
             new[yo0:yo1, xo0:xo1] = self.action.args.ccddata.data[yi0:yi1,
                                                                   xi0:xi1]
+            if self.action.args.ccddata.mask is not None:
+                new_mask[yo0:yo1, xo0:xo1] = self.action.args.ccddata.mask[yi0:yi1,
+                                                                           xi0:xi1]
+            if self.action.args.ccddata.flags is not None:
+                new_flags[yo0:yo1, xo0:xo1] = self.action.args.ccddata.flags[yi0:yi1,
+                                                                             xi0:xi1]
             # update amp section
             sec = "[%d:" % (xo0+1)
             sec += "%d," % xo1
@@ -52,6 +60,8 @@ class TrimOverscan(BasePrimitive):
             self.action.args.ccddata.header.pop('CSEC%d' % (ia + 1))
         # update with new image
         self.action.args.ccddata.data = new
+        self.action.args.ccddata.mask = new_mask
+        self.action.args.ccddata.flags = new_flags
         self.action.args.ccddata.header['NAXIS1'] = max_sec[3] + 1
         self.action.args.ccddata.header['NAXIS2'] = max_sec[1] + 1
         self.action.args.ccddata.header[key] = (True, keycom)
