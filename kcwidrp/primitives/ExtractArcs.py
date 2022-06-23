@@ -51,9 +51,12 @@ class ExtractArcs(BasePrimitive):
         self.logger.info("Trace table found: %s" % original_filename)
         # trace = read_table(tab=tab, indir='redux', suffix='trace')
         # Find  and read control points from continuum bars
-        if hasattr(self.context, 'trace'):
-            trace = self.context.trace
-        else:
+        #if hasattr(self.context, 'trace'):
+        #    trace = self.context.trace
+        #else:
+        if True:
+            # Trace table should *always* be read from the file system, because
+            # self.context.trace might have been overwritten by another config
             trace = read_table(
                 input_dir=os.path.join(self.config.instrument.cwd,
                                        self.config.instrument.output_directory),
