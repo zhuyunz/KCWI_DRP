@@ -40,6 +40,8 @@ class MakeMasterSky(BaseImg):
             f.close()
             # is our file in the list?
             for row in skyproc:
+                if row.strip()=='':
+                    continue
                 if ofn in row.split()[0]:
                     skyfile = row.split()[1]
                     self.logger.info("Found sky entry for %s: %s" % (ofn,
