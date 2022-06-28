@@ -214,8 +214,8 @@ class CorrectDar(BasePrimitive):
 
         self.logger.info(f"Image cube DAR order = {self.config.instrument.DAR_shift_order}")
         self.logger.info(f"Std. Dev. cube DAR order = {self.config.instrument.DAR_shift_order}")
-        self.logger.info(f"Mask cube DAR order = 1 (nearest neighbor)")
-        self.logger.info(f"Flag cube DAR order = 0 (nearest neighbor)")
+        self.logger.info(f"Mask cube DAR order = 1 (constant)")
+        self.logger.info(f"Flag cube DAR order = 1 (constant)")
         # Perform correction
         for j, wl in enumerate(waves):
             dispersion_correction = atm_disper(wref, wl, airmass)
@@ -227,10 +227,10 @@ class CorrectDar(BasePrimitive):
                                                                   x_shift), order=self.config.instrument.DAR_shift_order)
             output_stddev[j, :, :] = shift(output_stddev[j, :, :], (y_shift,
                                                                     x_shift), order=self.config.instrument.DAR_shift_order)
-            output_mask[j, :, :] = shift(output_mask[j, :, :], (y_shift,
-                                                                x_shift), order=1, mode = 'constant')
-            output_flags[j, :, :] = shift(output_flags[j, :, :], (y_shift,
-                                                                  x_shift), order=0, mode = 'constant')
+            output_mask[j, :, :] = np.ceil(shift(output_mask[j, :, :], (y_shift,
+                                                                x_shift), order=1, mode = 'constant'))
+            output_flags[j, :, :] = np.ceil(shift(output_flags[j, :, :], (y_shift,
+                                                                  x_shift), order=1, mode = 'constant'))
         # for obj, sky if they exist
         if output_obj is not None:
             for j, wl in enumerate(waves):
