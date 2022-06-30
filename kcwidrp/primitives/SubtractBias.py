@@ -35,19 +35,6 @@ class SubtractBias(BasePrimitive):
                 os.path.join(self.context.config.instrument.cwd, 'redux',
                              mbname))[0]
 
-            # create mask and flag arrays
-            if self.action.args.ccddata.flags is None:
-                self.action.args.ccddata.flags = np.zeros(
-                    self.action.args.ccddata.data.shape, dtype=np.uint8)
-            if self.action.args.ccddata.mask is None:
-                self.action.args.ccddata.mask = np.zeros(
-                    self.action.args.ccddata.data.shape, dtype=np.uint8)
-
-            # saturation check
-            sat = (self.action.args.ccddata.data >= 65535)
-            self.action.args.ccddata.flags[sat] += 1
-            self.action.args.ccddata.mask[sat] = 1
-
             # do the subtraction
             self.action.args.ccddata.data -= mbias.data
 
