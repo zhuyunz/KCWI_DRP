@@ -32,6 +32,9 @@ class Kcwi_pipeline(BasePipeline):
         # BIAS PROCESSING
         "process_bias":              ("ProcessBias",
                                       "bias_processing_started",
+                                      "bias_subtract_sine"),
+        "bias_subtract_sine":        ("SubtractSinePattern",
+                                      "bias_subtract_sine_started",
                                       "bias_make_master"),
         "bias_make_master":          ("MakeMasterBias",
                                       "master_bias_started",
@@ -39,6 +42,9 @@ class Kcwi_pipeline(BasePipeline):
         # DARK PROCESSING
         "process_dark":              ("ProcessDark",
                                       "dark_processing_started",
+                                      "dark_subtract_sine"),
+        "dark_subtract_sine":        ("SubtractSinePattern",
+                                      "dark_subtract_sine_started",
                                       "dark_subtract_bias"),
         "dark_subtract_bias":        ("SubtractBias",
                                       "subtract_bias_started",
@@ -144,6 +150,9 @@ class Kcwi_pipeline(BasePipeline):
         # FLAT PROCESSING
         "process_flat":              ("ProcessFlat",
                                       "flat_processing_started",
+                                      "flat_subtract_sine"),
+        "flat_subtract_sine":        ("SubtractSinePattern",
+                                      "flat_subtract_sine_started",
                                       "flat_subtract_bias"),
         "flat_subtract_bias":        ("SubtractBias",
                                       "subtract_bias started",
@@ -181,6 +190,9 @@ class Kcwi_pipeline(BasePipeline):
         # OBJECT PROCESSING
         "process_object":            ("ProcessObject",
                                       "object_processing_started",
+                                      "object_subtract_sine"),
+        "object_subtract_sine":      ("SubtractSinePattern",
+                                      "subtract_sine_started",
                                       "object_subtract_bias"),
         "object_subtract_bias":      ("SubtractBias",
                                       "subtract_bias started",

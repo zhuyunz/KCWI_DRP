@@ -1,5 +1,7 @@
 from keckdrpframework.primitives.base_primitive import BasePrimitive
 
+import numpy as np
+
 
 class ProcessObject(BasePrimitive):
 
