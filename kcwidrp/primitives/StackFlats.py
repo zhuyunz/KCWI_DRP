@@ -25,11 +25,15 @@ class StackFlats(BaseImg):
             frame=self.action.args.ccddata,
             target_type=self.action.args.stack_type,
             target_group=self.action.args.groupid)
-        if len(self.stacked_list) > 0:
-            self.logger.info(f"already have {len(self.stacked_list)},"
-                             f" stacked flats, expecting 0")
-            return False
-        else:
+        #if len(self.stacked_list) > 0:
+        #    self.logger.info(f"already have {len(self.stacked_list)},"
+        #                     f" stacked flats, expecting 0")
+        #    return False
+        # YC comment: once a mflat has been made, this will always return False, 
+        #   so new frames are not being added to the stack. However, this temporary
+        #   fix will make one stack every time new frame is added, and will slow
+        #   down the pipeline. Is there a way to make a stack only at the end?
+        if True:
             self.combine_list = self.context.proctab.search_proctab(
                 frame=self.action.args.ccddata,
                 target_type=self.action.args.want_type,
@@ -54,7 +58,7 @@ class StackFlats(BaseImg):
 
         combine_list = list(self.combine_list['filename'])
         # get flat stack output name
-        stname = strip_fname(combine_list[-1]) + '_' + suffix + '.fits'
+        stname = strip_fname(combine_list[0]) + '_' + suffix + '.fits'
         stack = []
         stackf = []
         mask = None
@@ -99,7 +103,7 @@ class StackFlats(BaseImg):
 
         self.context.proctab.update_proctab(frame=stacked, suffix=suffix,
                                             newtype=self.action.args.stack_type,
-                                            filename=self.action.args.name)
+                                            filename=combine_list[0])
         self.context.proctab.write_proctab()
 
         self.logger.info(log_string)

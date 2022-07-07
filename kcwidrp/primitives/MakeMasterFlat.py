@@ -38,14 +38,16 @@ class MakeMasterFlat(BaseImg):
         tab = self.context.proctab.search_proctab(
             frame=self.action.args.ccddata,
             target_type=self.action.args.new_type, nearest=True)
-        if len(tab) > 0:
-            self.logger.info("already have %d master %s flats, "
-                             " expecting 0" % (len(tab),
-                                               self.action.args.new_type))
-            return False
-        else:
-            self.logger.info("No %s master flat found, proceeding." %
-                             self.action.args.new_type)
+        #if len(tab) > 0:
+        #    self.logger.info("already have %d master %s flats, "
+        #                     " expecting 0" % (len(tab),
+        #                                       self.action.args.new_type))
+        #    return False
+        #else:
+        if True:
+            # same hotfix as StackFlats.py
+            #self.logger.info("No %s master flat found, proceeding." %
+            #                 self.action.args.new_type)
             self.stack_list = self.context.proctab.search_proctab(
                 frame=self.action.args.ccddata,
                 target_type=self.action.args.stack_type,
@@ -869,7 +871,7 @@ class MakeMasterFlat(BaseImg):
                          output_dir=self.config.instrument.output_directory)
         self.context.proctab.update_proctab(frame=stacked, suffix=suffix,
                                             newtype=self.action.args.new_type,
-                                            filename=self.action.args.name)
+                                            filename=stack_list[0])
         self.context.proctab.write_proctab()
 
         self.logger.info(log_string)
