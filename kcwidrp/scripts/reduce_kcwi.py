@@ -28,7 +28,7 @@ import logging.config
 
 
 def _parse_arguments(in_args: list) -> argparse.Namespace:
-    description = "KCWI pipeline CLI"
+    description = "KCWI pipeline CLI (last modified by NZP on 7/7/2022)"
 
     # this is a simple case where we provide a frame and a configuration file
     parser = argparse.ArgumentParser(prog=f"{in_args[0]}",
