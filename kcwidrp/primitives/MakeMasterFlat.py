@@ -826,10 +826,14 @@ class MakeMasterFlat(BaseImg):
         qzer = [i for i, v in enumerate(newflat.flat) if v != 0]
         ratio.flat[qzer] = comflat.flat[qzer] / newflat.flat[qzer]
 
+        # set up flags
+        flags = np.zeros_like(ratio, dtype=np.uint8)
+
         # trim negative points
         qq = [i for i, v in enumerate(ratio.flat) if v < 0]
         if len(qq) > 0:
             ratio.flat[qq] = 0.0
+            flags.flat[qq] = 8
 
         # trim the high points near edges of slice
         qq = [i for i, v in enumerate(ratio.flat) if v >= 3. and
@@ -837,11 +841,13 @@ class MakeMasterFlat(BaseImg):
                posmap.data.flat[i] >= 136/xbin)]
         if len(qq) > 0:
             ratio.flat[qq] = 0.0
+            flags.flat[qq] = 16
 
         # don't correct low signal points
         qq = [i for i, v in enumerate(newflat.flat) if v < 30.]
         if len(qq) > 0:
             ratio.flat[qq] = 1.0
+            flags.flat[qq] = 32
 
         # get master flat output name
         mfname = stack_list[0].split('.fits')[0] + '_' + suffix + '.fits'
@@ -856,6 +862,7 @@ class MakeMasterFlat(BaseImg):
 
         # store flat in output frame
         stacked.data = ratio
+        stacked.flags = flags
 
         # output master flat
         kcwi_fits_writer(stacked, output_file=mfname,

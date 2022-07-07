@@ -70,6 +70,7 @@ class CorrectIllumination(BasePrimitive):
 
             # do the correction
             self.action.args.ccddata.data *= mflat.data
+            self.action.args.ccddata.flags += mflat.flags
 
             # update header keywords
             self.action.args.ccddata.header[key] = (True, keycom)
