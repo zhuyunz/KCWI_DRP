@@ -71,6 +71,8 @@ class CorrectIllumination(BasePrimitive):
             # do the correction
             self.action.args.ccddata.data *= mflat.data
             self.action.args.ccddata.flags += mflat.flags
+            if self.action.args.ccddata.uncertainty is not None:
+                self.action.args.ccddata.uncertainty.array *= mflat.data
 
             # update header keywords
             self.action.args.ccddata.header[key] = (True, keycom)
