@@ -152,6 +152,9 @@ class MakeMasterFlat(BaseImg):
         ffleft = int(10/xbin)
         ffright = int(70/xbin)
         nrefx = int(ffright - ffleft)
+        # YC: The parameter above causes the bspline knots at the two ends having no real
+        #   data to fit with. So the mflat unnecessarily curves down at the ends. 
+        #   It might be fixable by redefining knots, but not going to test now.
 
         buffer = 6.0/float(xbin)
 
@@ -500,7 +503,7 @@ class MakeMasterFlat(BaseImg):
         # generate a fit from ref slice points
         bkpt = np.min(xfr) + np.arange(knots+1) * \
             (np.max(xfr) - np.min(xfr)) / knots
-        sftr, _ = Bspline.iterfit(xfr[nrefx:-nrefx], yfr[nrefx:-nrefx],
+        sftr, _ = Bspline.iterfit(xfr[:], yfr[:],
                                   fullbkpt=bkpt)
         yfitr, _ = sftr.value(xfr)
 
@@ -517,7 +520,7 @@ class MakeMasterFlat(BaseImg):
         yfb = yfb[s]
         bkpt = np.min(xfb) + np.arange(knots+1) * \
             (np.max(xfb) - np.min(xfb)) / knots
-        sftb, _ = Bspline.iterfit(xfb[nrefx:-nrefx], yfb[nrefx:-nrefx],
+        sftb, _ = Bspline.iterfit(xfb[:], yfb[:],
                                   fullbkpt=bkpt)
         yfitb, _ = sftb.value(xfb)
 
@@ -534,7 +537,7 @@ class MakeMasterFlat(BaseImg):
         yfd = yfd[s]
         bkpt = np.min(xfd) + np.arange(knots + 1) * \
             (np.max(xfd) - np.min(xfd)) / knots
-        sftd, _ = Bspline.iterfit(xfd[nrefx:-nrefx], yfd[nrefx:-nrefx],
+        sftd, _ = Bspline.iterfit(xfd[:], yfd[:],
                                   fullbkpt=bkpt)
         yfitd, _ = sftd.value(xfd)
 
@@ -757,18 +760,18 @@ class MakeMasterFlat(BaseImg):
         else:
             redfluxes = None
         allx = xfr
-        allfx = xfr[nrefx:-nrefx]
-        ally = yfr[nrefx:-nrefx]
+        allfx = xfr[:]
+        ally = yfr[:]
         if nqsb > 0:
             bluex = xfb[qselblue]
             allx = np.append(bluex, allx)
-            allfx = np.append(bluex[nrefx:], allfx)
-            ally = np.append(bluefluxes[nrefx:], ally)
+            allfx = np.append(bluex[:], allfx)
+            ally = np.append(bluefluxes[:], ally)
         if nqsr > 0:
             redx = xfd[qselred]
             allx = np.append(allx, redx)
-            allfx = np.append(allfx, redx[:-nrefx])
-            ally = np.append(ally, redfluxes[:-nrefx])
+            allfx = np.append(allfx, redx[:])
+            ally = np.append(ally, redfluxes[:])
         s = np.argsort(allx)
         allx = allx[s]
         s = np.argsort(allfx)
