@@ -51,9 +51,12 @@ def make_cube_helper(argument):
     varped = tf.warp(slice_var, tform, order=argument['order'],
                      output_shape=(ysize, xsize))
     marped = tf.warp(slice_msk, tform, order=1,
-                     output_shape=(ysize, xsize)) # linear order
-    farped = tf.warp(slice_flg, tform, order=0,
-                     output_shape=(ysize, xsize), preserve_range=True) # linear order keeps all pixels
+                     output_shape=(ysize, xsize), 
+                     mode='constant', cval=1) # linear order
+    farped = tf.warp(slice_flg, tform, order=1,
+                     output_shape=(ysize, xsize), 
+                     preserve_range=True, 
+                     mode='constant', cval=64) # linear order keeps all pixels
 
     if slice_obj is not None:
         oarped = tf.warp(slice_obj, tform, order=argument['order'],
