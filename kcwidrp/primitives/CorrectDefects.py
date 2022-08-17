@@ -119,7 +119,6 @@ class CorrectDefects(BasePrimitive):
         if os.path.exists(os.path.join(self.config.instrument.cwd, 'redux', crmsk)):
             self.logger.info("Reading image: %s" % crmsk)
             crmsk = kcwi_fits_reader(os.path.join(self.config.instrument.cwd, 'redux', crmsk))[0]
-
             flags += 4*crmsk.data # unmasked pixels -> 4, already masked CRs -> 8
 
 
