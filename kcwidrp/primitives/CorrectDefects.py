@@ -76,9 +76,10 @@ class CorrectDefects(BasePrimitive):
         tab = self.context.proctab.search_proctab(
             frame=self.action.args.ccddata, target_type='ARCLAMP',
             target_group=self.action.args.groupid)
+        mroot = strip_fname(tab['filename'][-1])
+
         if (len(tab) > 0) and (self.action.args.ccddata.header['XPOSURE'] >= self.config.instrument.CRR_MINEXPTIME) & (self.config.instrument.remove_bad_pixels):
             # Wavelength map image
-            mroot = strip_fname(tab['filename'][-1])
             wmf = mroot + '_wavemap.fits'
             self.logger.info("Reading image: %s" % wmf)
 
@@ -113,6 +114,15 @@ class CorrectDefects(BasePrimitive):
             self.logger.error("Geometry not solved or below minimum exposure time.")
             self.logger.info("Possibly unable to read wavelength map")
             self.logger.info("Unable to remove negative values")
+
+        crmsk = mroot + '_crmsk.fits'
+        if os.path.exists(os.path.join(self.config.instrument.cwd, 'redux', crmsk)):
+            self.logger.info("Reading image: %s" % crmsk)
+            crmsk = kcwi_fits_reader(os.path.join(self.config.instrument.cwd, 'redux', crmsk))[0]
+
+            flags += 4*crmsk.data # unmasked pixels -> 4, already masked CRs -> 8
+
+
 
 
         self.logger.info("Cleaned %d bad pixels" % number_of_bad_pixels)
