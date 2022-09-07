@@ -5,6 +5,7 @@ import numpy as np
 import pkg_resources
 import os
 import pandas as pd
+from astropy.io import fits
 
 
 class CorrectDefects(BasePrimitive):
@@ -115,10 +116,11 @@ class CorrectDefects(BasePrimitive):
             self.logger.info("Possibly unable to read wavelength map")
             self.logger.info("Unable to remove negative values")
 
-        crmsk = mroot + '_crmsk.fits'
+        crmsk = self.action.args.name.split('.')[0] + '_crmsk.fits'
+        # print(crmsk)
         if os.path.exists(os.path.join(self.config.instrument.cwd, 'redux', crmsk)):
-            self.logger.info("Reading image: %s" % crmsk)
-            crmsk = kcwi_fits_reader(os.path.join(self.config.instrument.cwd, 'redux', crmsk))[0]
+            self.logger.info("Reading CR Mask: %s" % crmsk)
+            crmsk = fits.open(os.path.join(self.config.instrument.cwd, 'redux', crmsk))[0]
 
             flags += 4*crmsk.data # unmasked pixels -> 4, already masked CRs -> 8
 
