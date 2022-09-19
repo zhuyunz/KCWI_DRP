@@ -124,8 +124,9 @@ class CorrectDefects(BasePrimitive):
 
             flags += 4*crmsk.data # unmasked pixels -> 4, already masked CRs -> 8
 
-
-
+            cr_pixels = len(crmsk.data[crmsk.data != 0])
+            self.logger.info(f'Removed {cr_pixels} CR pixels using CR mask')
+            
 
         self.logger.info("Cleaned %d bad pixels" % number_of_bad_pixels)
         self.action.args.ccddata.header['NBPCLEAN'] = \
