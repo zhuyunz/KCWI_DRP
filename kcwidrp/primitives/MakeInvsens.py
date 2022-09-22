@@ -343,22 +343,57 @@ class MakeInvsens(BasePrimitive):
                                line_color='orange', line_dash='dashed')
                 set_plot_lims(p, xlim=[wall0, wall1], ylim=yran)
                 bokeh_plot(p, self.context.bokeh_session)
-                qstr = input("New lines? <float> [<float>] ... (A), "
-                             "<cr> - done: ")
+
+                print('Balmer lines in use: [6563 4861 4341 4102 3970 3889 3835] A')
+                balmerq = input("Keep Balmer Lines? <cr> - yes, <any char> - no and resets plot: ")
+
+                if len(balmerq) > 0:
+                    blines = []
+                    # replot figure without Balmer lines
+                    p = figure(
+                        tooltips=[("x", "@x{0.0}"), ("y", "@y{0.0}")],
+                        title=self.action.args.plotlabel + ' Obs Spec',
+                        x_axis_label='Wave (A)',
+                        y_axis_label='Intensity (e-)',
+                        plot_width=self.config.instrument.plot_width,
+                        plot_height=self.config.instrument.plot_height)
+                    p.line(w, obsspec, line_color='black')
+                    p.line([wgoo0, wgoo0], yran, line_color='green',
+                           legend_label='WAVGOOD')
+                    p.line([wgoo1, wgoo1], yran, line_color='green')
+                    p.line([wlm0, wlm0], yran, line_color='blue',
+                           legend_label='LIMITS')
+                    p.line([wlm1, wlm1], yran, line_color='blue')
+                    p.line([cwv, cwv], yran, line_color='red', legend_label='CWAV')
+                    set_plot_lims(p, xlim=[wall0, wall1], ylim=yran)
+                    bokeh_plot(p, self.context.bokeh_session)
+
+                qstr = input("New lines? <wavelength> [width] <wavelength> [width] ... (A), "
+                            "<cr> - done: ")
                 if len(qstr) <= 0:
                     done = True
                 else:
-                    for lstr in qstr.split():
+                    list = qstr.split()
+                    index = 0
+                    while index < len(list):
+                        # print(index)
                         try:
-                            new_line = float(lstr)
+                            wave = float(list[index])
                         except ValueError:
-                            print("bad line: %s" % lstr)
-                            continue
-                        if wlm0 < new_line < wlm1:
-                            blines.append(new_line)
-                            bwids.append(bwid * new_line)
+                            print("bad line: %s" % list[index])
+                            break
+                        # print(wave)
+                        if (index < len(list)-1) and (float(list[index+1]) < 3530):
+                            # print(wave, list[index+1])
+                            blines.append(wave)
+                            bwids.append(float(list[index+1]))
+                            index += 2
                         else:
-                            print("line outside range: %s" % lstr)
+                            blines.append(wave)
+                            bwids.append(wave * bwid)
+                            index += 1
+                    # print(blines, bwids)
+
         # END: interactively identify lines
         # set up fitting vectors, flux, waves, measure errors
         sf = invsen[wl_good]   # dependent variable
