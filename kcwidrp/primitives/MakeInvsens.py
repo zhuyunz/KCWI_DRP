@@ -317,57 +317,76 @@ class MakeInvsens(BasePrimitive):
         if self.config.instrument.plot_level >= 1:
             yran = [np.min(obsspec), np.max(obsspec)]
             # source = ColumnDataSource(data=dict(x=w, y=obsspec))
+            # done_balmer = False
+            # while not done_balmer:
+            p = figure(
+                tooltips=[("x", "@x{0.0}"), ("y", "@y{0.0}")],
+                title=self.action.args.plotlabel + ' Obs Spec',
+                x_axis_label='Wave (A)',
+                y_axis_label='Intensity (e-)',
+                plot_width=self.config.instrument.plot_width,
+                plot_height=self.config.instrument.plot_height)
+            p.line(w, obsspec, line_color='black')
+            p.line([wgoo0, wgoo0], yran, line_color='green',
+                   legend_label='WAVGOOD')
+            p.line([wgoo1, wgoo1], yran, line_color='green')
+            p.line([wlm0, wlm0], yran, line_color='blue',
+                   legend_label='LIMITS')
+            p.line([wlm1, wlm1], yran, line_color='blue')
+            p.line([cwv, cwv], yran, line_color='red', legend_label='CWAV')
+            for il, bl in enumerate(blines):
+                if wall0 < bl < wall1:
+                    p.line([bl, bl], yran, line_color='orange')
+                    p.line([bl-bwids[il], bl-bwids[il]], yran,
+                           line_color='orange', line_dash='dashed')
+                    p.line([bl + bwids[il], bl + bwids[il]], yran,
+                           line_color='orange', line_dash='dashed')
+            set_plot_lims(p, xlim=[wall0, wall1], ylim=yran)
+            bokeh_plot(p, self.context.bokeh_session)
+
+            print('Balmer lines in use: [6563 4861 4341 4102 3970 3889 3835] A')
+            balmerq = input("Keep Balmer Lines? <cr> - yes, <any char> - no and resets plot: ")
+
+
+            if len(balmerq) > 0:
+                blines = []
+                bwids = []
+
+            # replot
+            p = figure(
+                tooltips=[("x", "@x{0.0}"), ("y", "@y{0.0}")],
+                title=self.action.args.plotlabel + ' Obs Spec',
+                x_axis_label='Wave (A)',
+                y_axis_label='Intensity (e-)',
+                plot_width=self.config.instrument.plot_width,
+                plot_height=self.config.instrument.plot_height)
+            p.line(w, obsspec, line_color='black')
+            p.line([wgoo0, wgoo0], yran, line_color='green',
+                   legend_label='WAVGOOD')
+            p.line([wgoo1, wgoo1], yran, line_color='green')
+            p.line([wlm0, wlm0], yran, line_color='blue',
+                   legend_label='LIMITS')
+            p.line([wlm1, wlm1], yran, line_color='blue')
+            p.line([cwv, cwv], yran, line_color='red', legend_label='CWAV')
+            for il, bl in enumerate(blines):
+                if wall0 < bl < wall1:
+                    p.line([bl, bl], yran, line_color='orange')
+                    p.line([bl-bwids[il], bl-bwids[il]], yran,
+                           line_color='orange', line_dash='dashed')
+                    p.line([bl + bwids[il], bl + bwids[il]], yran,
+                           line_color='orange', line_dash='dashed')
+            set_plot_lims(p, xlim=[wall0, wall1], ylim=yran)
+            bokeh_plot(p, self.context.bokeh_session)
+
+                # else:
+                    # blines = [6563., 4861., 4341., 4102., 3970., 3889., 3835.]
+                    # bwids = [bl * bwid for bl in blines]
+
+
+                # done_balmer = True
+
             done = False
             while not done:
-                p = figure(
-                    tooltips=[("x", "@x{0.0}"), ("y", "@y{0.0}")],
-                    title=self.action.args.plotlabel + ' Obs Spec',
-                    x_axis_label='Wave (A)',
-                    y_axis_label='Intensity (e-)',
-                    plot_width=self.config.instrument.plot_width,
-                    plot_height=self.config.instrument.plot_height)
-                p.line(w, obsspec, line_color='black')
-                p.line([wgoo0, wgoo0], yran, line_color='green',
-                       legend_label='WAVGOOD')
-                p.line([wgoo1, wgoo1], yran, line_color='green')
-                p.line([wlm0, wlm0], yran, line_color='blue',
-                       legend_label='LIMITS')
-                p.line([wlm1, wlm1], yran, line_color='blue')
-                p.line([cwv, cwv], yran, line_color='red', legend_label='CWAV')
-                for il, bl in enumerate(blines):
-                    if wall0 < bl < wall1:
-                        p.line([bl, bl], yran, line_color='orange')
-                        p.line([bl-bwids[il], bl-bwids[il]], yran,
-                               line_color='orange', line_dash='dashed')
-                        p.line([bl + bwids[il], bl + bwids[il]], yran,
-                               line_color='orange', line_dash='dashed')
-                set_plot_lims(p, xlim=[wall0, wall1], ylim=yran)
-                bokeh_plot(p, self.context.bokeh_session)
-
-                print('Balmer lines in use: [6563 4861 4341 4102 3970 3889 3835] A')
-                balmerq = input("Keep Balmer Lines? <cr> - yes, <any char> - no and resets plot: ")
-
-                if len(balmerq) > 0:
-                    blines = []
-                    # replot figure without Balmer lines
-                    p = figure(
-                        tooltips=[("x", "@x{0.0}"), ("y", "@y{0.0}")],
-                        title=self.action.args.plotlabel + ' Obs Spec',
-                        x_axis_label='Wave (A)',
-                        y_axis_label='Intensity (e-)',
-                        plot_width=self.config.instrument.plot_width,
-                        plot_height=self.config.instrument.plot_height)
-                    p.line(w, obsspec, line_color='black')
-                    p.line([wgoo0, wgoo0], yran, line_color='green',
-                           legend_label='WAVGOOD')
-                    p.line([wgoo1, wgoo1], yran, line_color='green')
-                    p.line([wlm0, wlm0], yran, line_color='blue',
-                           legend_label='LIMITS')
-                    p.line([wlm1, wlm1], yran, line_color='blue')
-                    p.line([cwv, cwv], yran, line_color='red', legend_label='CWAV')
-                    set_plot_lims(p, xlim=[wall0, wall1], ylim=yran)
-                    bokeh_plot(p, self.context.bokeh_session)
-
                 qstr = input("New lines? <wavelength> [width] <wavelength> [width] ... (A), "
                             "<cr> - done: ")
                 if len(qstr) <= 0:
@@ -392,6 +411,31 @@ class MakeInvsens(BasePrimitive):
                             blines.append(wave)
                             bwids.append(wave * bwid)
                             index += 1
+                    # replot figure with new lines
+                    p = figure(
+                        tooltips=[("x", "@x{0.0}"), ("y", "@y{0.0}")],
+                        title=self.action.args.plotlabel + ' Obs Spec',
+                        x_axis_label='Wave (A)',
+                        y_axis_label='Intensity (e-)',
+                        plot_width=self.config.instrument.plot_width,
+                        plot_height=self.config.instrument.plot_height)
+                    p.line(w, obsspec, line_color='black')
+                    p.line([wgoo0, wgoo0], yran, line_color='green',
+                           legend_label='WAVGOOD')
+                    p.line([wgoo1, wgoo1], yran, line_color='green')
+                    p.line([wlm0, wlm0], yran, line_color='blue',
+                           legend_label='LIMITS')
+                    p.line([wlm1, wlm1], yran, line_color='blue')
+                    p.line([cwv, cwv], yran, line_color='red', legend_label='CWAV')
+                    set_plot_lims(p, xlim=[wall0, wall1], ylim=yran)
+                    for il, bl in enumerate(blines):
+                        if wall0 < bl < wall1:
+                            p.line([bl, bl], yran, line_color='orange')
+                            p.line([bl-bwids[il], bl-bwids[il]], yran,
+                                   line_color='orange', line_dash='dashed')
+                            p.line([bl + bwids[il], bl + bwids[il]], yran,
+                                   line_color='orange', line_dash='dashed')
+                    bokeh_plot(p, self.context.bokeh_session)
                     # print(blines, bwids)
 
         # END: interactively identify lines
