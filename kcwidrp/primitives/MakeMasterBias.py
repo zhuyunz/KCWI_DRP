@@ -26,10 +26,10 @@ class MakeMasterBias(BaseImg):
         :return:
         """
         # Add to proctab
-        #self.context.proctab.update_proctab(frame=self.action.args.ccddata,
-        #                                    suffix='RAW',
-        #                                    filename=self.action.args.name)
-        #self.context.proctab.write_proctab()
+        self.context.proctab.update_proctab(frame=self.action.args.ccddata,
+                                           suffix='RAW',
+                                           filename=self.action.args.name)
+        self.context.proctab.write_proctab()
         # Get bias count
         self.logger.info("Checking precondition for MakeMasterBias")
         self.combine_list = self.context.proctab.search_proctab(
@@ -54,14 +54,16 @@ class MakeMasterBias(BaseImg):
         # get master bias output name
         # mbname = combine_list[-1].split('.fits')[0] + '_' + suffix + '.fits'
         mbname = master_bias_name(self.action.args.ccddata)
-    
+
         stack = []
         stackf = []
         for bias in combine_list:
-            stackf.append(bias.replace('.fits', '_ins.fits'))
-            biasfn = os.path.join(self.config.instrument.output_directory, stackf[-1])
+            stackf.append(bias)
+            # stackf.append(bias.replace('.fits', '_ins.fits'))
+            # biasfn = os.path.join(self.config.instrument.output_directory, stackf[-1])
             # using [0] drops the table
-            stack.append(kcwi_fits_reader(biasfn)[0])
+            stack.append(kcwi_fits_reader(bias)[0])
+            # stack.append(kcwi_fits_reader(biasfn)[0])
 
         stacked = ccdproc.combine(stack, method=method, sigma_clip=True,
                                   sigma_clip_low_thresh=None,
