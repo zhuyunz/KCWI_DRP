@@ -166,6 +166,9 @@ def main():
     elif args.stage=='sine':
         from kcwidrp.pipelines.kcwi_pipeline_testing_sine_pattern import Kcwi_pipeline
         print('KCWI Pipeline Testing Sine Pattern')
+    elif args.stage=='bspline':
+        from kcwidrp.pipelines.kcwi_pipeline_testing_bspline import Kcwi_pipeline
+        print('KCWI Pipeline Testing: B-Spline Fit')
     else:
         from kcwidrp.pipelines.kcwi_pipeline import Kcwi_pipeline
         print("Invalid stage choice [0..3]: going with default (full) reduction")
