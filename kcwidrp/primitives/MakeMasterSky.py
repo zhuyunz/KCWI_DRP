@@ -9,7 +9,8 @@ from bokeh.plotting import figure
 import os
 import time
 import numpy as np
-from astropy.io import fits
+from astropy.io import fits, ascii
+from astropy.table import Table
 
 
 class MakeMasterSky(BaseImg):
@@ -204,6 +205,22 @@ class MakeMasterSky(BaseImg):
         self.logger.info("Nknots = %d, min = %.2f, max = %.2f (A)" %
                          (n, np.min(bkpt), np.max(bkpt)))
         # do bspline fit
+
+        bspline_tab = Table()
+        bspline_tab['waves'] = waves
+        bspline_tab['fluxes'] = fluxes
+
+        bspline_bkpts = Table()
+        bspline_bkpts['bkpt'] = bkpt
+
+        name = self.action.args.name.replace('.fits', '')
+
+        self.logger.info(f"Saving B-spline parameters to: {os.path.join(self.config.instrument.cwd, 'redux')}/{name}_bspline_tab.txt")
+        ascii.write(bspline_tab, f"{os.path.join(self.config.instrument.cwd, 'redux')}/{name}_bspline_tab.txt")
+
+        self.logger.info(f"Saving B-spline breakpoints to: {os.path.join(self.config.instrument.cwd, 'redux')}/{name}_bspline_bkpts.txt")
+        ascii.write(bspline_bkpts, f"{os.path.join(self.config.instrument.cwd, 'redux')}/{name}_bspline_bkpts.txt")
+
         sft0, gmask = Bspline.iterfit(waves, fluxes, fullbkpt=bkpt,
                                       upper=1, lower=1)
         gp = [i for i, v in enumerate(gmask) if v]
