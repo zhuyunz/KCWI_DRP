@@ -222,7 +222,7 @@ class MakeMasterSky(BaseImg):
         ascii.write(bspline_bkpts, f"{os.path.join(self.config.instrument.cwd, 'redux')}/{name}_bspline_bkpts.txt")
 
         sft0, gmask = Bspline.iterfit(waves, fluxes, fullbkpt=bkpt,
-                                      upper=1, lower=1)
+                                      upper=2, lower=2)
         gp = [i for i, v in enumerate(gmask) if v]
         yfit1, _ = sft0.value(waves)
         self.logger.info("Number of good points = %d" % len(gp))

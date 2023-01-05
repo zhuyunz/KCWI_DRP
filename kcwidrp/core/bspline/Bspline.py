@@ -760,6 +760,10 @@ def iterfit(xdata, ydata, invvar=None, upper=5, lower=5, x2=None,
                         sset.mask[goodbk[ileft]] = False
             error, yfit = sset.fit(xwork, ywork, invwork*maskwork,
                                    x2=x2work)
+            print(f'yfit length: {len(yfit)}')
+            print('yfit')
+            print(yfit)
+
         iiter += 1
         inmask = maskwork
         if error == -2:
@@ -770,6 +774,11 @@ def iterfit(xdata, ydata, invvar=None, upper=5, lower=5, x2=None,
                                          inmask=inmask, outmask=maskwork,
                                          upper=upper, lower=lower,
                                          **kwargs_reject)
+            print(f'Iteration: {iiter}')
+            print(f'maskwork length: {len(maskwork)}')
+            print('maskwork:')
+            print(f'# True: {len(maskwork[maskwork==True])}')
+            print(f'# False: {len(maskwork[maskwork==False])}')
         else:
             pass
     outmask[xsort] = maskwork
