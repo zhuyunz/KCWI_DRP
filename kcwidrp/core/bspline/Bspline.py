@@ -10,6 +10,8 @@ from . import PydlutilsUserWarning
 from .math import djs_reject, flegendre
 from .trace import fchebyshev
 from .uniq import uniq
+from astropy.io import ascii
+from astropy.table import Table
 
 
 class Bspline(object):
@@ -729,7 +731,8 @@ def iterfit(xdata, ydata, invvar=None, upper=5, lower=5, x2=None,
                     sset.funcname = kwargs_bspline['funcname']
     xwork = xdata[xsort]
     ywork = ydata[xsort]
-    invwork = invvar[xsort]
+    # invwork = invvar[xsort]
+    invwork = invvar[xsort]*0 + (1/np.var(ywork[((xwork < 5190) | (xwork > 5205)) & ((xwork < 5570) | (xwork > 5585))]))
     if x2 is not None:
         x2work = x2[xsort]
     else:
@@ -766,10 +769,23 @@ def iterfit(xdata, ydata, invvar=None, upper=5, lower=5, x2=None,
 
         iiter += 1
         inmask = maskwork
+        print(inmask)
+        # inmask[((xwork > 5197) & (xwork < 5201)) | ((xwork > 5574) & (xwork < 5581))] = False
+        print(np.std(ywork[((xwork < 5190) | (xwork > 5205)) & ((xwork < 5570) | (xwork > 5585))]))
+        # inv1/np.var(ywork[((xwork < 5197) | (xwork > 5201)) & ((xwork < 5574) | (xwork > 5581))])
         if error == -2:
 
             return sset, outmask
         elif error == 0:
+            # v_test = (invwork*0) + np.var(yworktest)
+            # v_test[maskwork == False] = np.nan #np.nan
+            # yworktest = ywork[((xwork < 5197) & (xwork > 5201)) | ((xwork > 5574) & (xwork < 5581))]
+
+
+
+            # v_test = (invwork*0) + np.var(yworktest)
+            print(np.std(ywork))
+            # iv_test = 1/v_test
             maskwork, qdone = djs_reject(ywork, yfit, invvar=invwork,
                                          inmask=inmask, outmask=maskwork,
                                          upper=upper, lower=lower,
@@ -779,6 +795,15 @@ def iterfit(xdata, ydata, invvar=None, upper=5, lower=5, x2=None,
             print('maskwork:')
             print(f'# True: {len(maskwork[maskwork==True])}')
             print(f'# False: {len(maskwork[maskwork==False])}')
+            print(f'Writing Mask {iiter}')
+            data = Table()
+            data['xwork'] = xwork
+            data['ywork'] = ywork
+            data['yfit'] = yfit
+            data['invvar'] = invwork
+            data['mask'] = maskwork
+            ascii.write(data, f'redux/kb210415_00042_maskwork_{iiter}.txt', format = 'basic', overwrite=True)
+
         else:
             pass
     outmask[xsort] = maskwork
