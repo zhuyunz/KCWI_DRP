@@ -731,8 +731,13 @@ def iterfit(xdata, ydata, invvar=None, upper=5, lower=5, x2=None,
                     sset.funcname = kwargs_bspline['funcname']
     xwork = xdata[xsort]
     ywork = ydata[xsort]
-    # invwork = invvar[xsort]
+    invwork = invvar[xsort]
     invwork = invvar[xsort]*0 + (1/np.var(ywork[((xwork < 5190) | (xwork > 5205)) & ((xwork < 5570) | (xwork > 5585))]))
+
+
+
+
+
     if x2 is not None:
         x2work = x2[xsort]
     else:
@@ -741,6 +746,12 @@ def iterfit(xdata, ydata, invvar=None, upper=5, lower=5, x2=None,
     error = 0
     qdone = False
     while (error != 0 or qdone is False) and iiter <= maxiter:
+
+        for i in np.arange(0, np.max(xwork), 30):
+            range = np.max(xwork)/30
+            testvar = np.var(ywork[(maskwork==True) & (xwork > i) & (xwork < i+range)])
+            invwork[(xwork > i) & (xwork < i+range)] = 1/testvar
+
         goodbk = sset.mask.nonzero()[0]
         if maskwork.sum() <= 1 or not sset.mask.any():
             sset.coeff = 0
@@ -761,6 +772,7 @@ def iterfit(xdata, ydata, invvar=None, upper=5, lower=5, x2=None,
                         ct = 0
                     else:
                         sset.mask[goodbk[ileft]] = False
+
             error, yfit = sset.fit(xwork, ywork, invwork*maskwork,
                                    x2=x2work)
             print(f'yfit length: {len(yfit)}')
@@ -788,7 +800,7 @@ def iterfit(xdata, ydata, invvar=None, upper=5, lower=5, x2=None,
             # iv_test = 1/v_test
             maskwork, qdone = djs_reject(ywork, yfit, invvar=invwork,
                                          inmask=inmask, outmask=maskwork,
-                                         upper=upper, lower=lower,
+                                         upper=upper, lower=lower, sticky=True,
                                          **kwargs_reject)
             print(f'Iteration: {iiter}')
             print(f'maskwork length: {len(maskwork)}')
@@ -802,6 +814,11 @@ def iterfit(xdata, ydata, invvar=None, upper=5, lower=5, x2=None,
             data['yfit'] = yfit
             data['invvar'] = invwork
             data['mask'] = maskwork
+
+            #recompute invwork
+            # invwork = (invwork*0.) + 1/np.var(ywork[maskwork==True])
+            # print(f'Invwork: {np.median(invwork):.3e}')
+
             ascii.write(data, f'redux/kb210415_00042_maskwork_{iiter}.txt', format = 'basic', overwrite=True)
 
         else:
