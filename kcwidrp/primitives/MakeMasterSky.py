@@ -216,15 +216,15 @@ class MakeMasterSky(BaseImg):
         name = self.action.args.name.replace('.fits', '')
 
         self.logger.info(f"Saving B-spline parameters to: {os.path.join(self.config.instrument.cwd, 'redux')}/{name}_bspline_tab.txt")
-        # ascii.write(bspline_tab, f"{os.path.join(self.config.instrument.cwd, 'redux')}/{name}_bspline_tab.txt")
+        ascii.write(bspline_tab, f"{os.path.join(self.config.instrument.cwd, 'redux')}/{name}_bspline_tab.txt")
 
         self.logger.info(f"Saving B-spline breakpoints to: {os.path.join(self.config.instrument.cwd, 'redux')}/{name}_bspline_bkpts.txt")
-        # ascii.write(bspline_bkpts, f"{os.path.join(self.config.instrument.cwd, 'redux')}/{name}_bspline_bkpts.txt")
+        ascii.write(bspline_bkpts, f"{os.path.join(self.config.instrument.cwd, 'redux')}/{name}_bspline_bkpts.txt")
 
         # fluxes_test = fluxes[((waves < 5197) & (waves > 5201)) | ((waves < 5574) | (waves > 5581))]
 
         sft0, gmask = Bspline.iterfit(waves, fluxes, fullbkpt=bkpt,
-                                      upper=1, lower=1)
+                                      upper=1, lower=1, maxiter=4)
         gp = [i for i, v in enumerate(gmask) if v]
         yfit1, _ = sft0.value(waves)
         self.logger.info("Number of good points = %d" % len(gp))
