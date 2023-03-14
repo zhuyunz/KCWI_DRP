@@ -166,6 +166,12 @@ def main():
     elif args.stage=='sine':
         from kcwidrp.pipelines.kcwi_pipeline_testing_sine_pattern import Kcwi_pipeline
         print('KCWI Pipeline Testing Sine Pattern')
+    elif args.stage=='cube':
+        from kcwidrp.pipelines.kcwi_pipeline_testing_makecube import Kcwi_pipeline
+        print('KCWI Pipeline Testing Make Cube')
+    elif args.stage=='PCA':
+        from kcwidrp.pipelines.kcwi_pipeline_PCA_flats import Kcwi_pipeline
+        print('KCWI Pipeline Testing PCA Flats')
     else:
         from kcwidrp.pipelines.kcwi_pipeline import Kcwi_pipeline
         print("Invalid stage choice [0..3]: going with default (full) reduction")

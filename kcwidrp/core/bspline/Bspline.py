@@ -643,7 +643,7 @@ def cholesky_solve(a, bb):
 
 
 def iterfit(xdata, ydata, invvar=None, upper=5, lower=5, x2=None,
-            maxiter=10, nord=4, bkpt=None, fullbkpt=None,
+            maxiter=4, nord=4, bkpt=None, fullbkpt=None,
             kwargs_bspline={}, kwargs_reject={}):
     """Iteratively fit a B-spline set to data, with rejection.
 
@@ -760,13 +760,24 @@ def iterfit(xdata, ydata, invvar=None, upper=5, lower=5, x2=None,
         #     testvar = np.var(ywork[(maskwork==True) & (xwork > fullbkpt[i]) & (xwork < fullbkpt[i+1])])
         #     invwork[(xwork > fullbkpt[i]) & (xwork < fullbkpt[i+1])] = 1/testvar
         bk = 1000
-        for i in np.linspace(np.min(xwork), np.max(xwork), bk):
+        print(bk)
+        arr = np.linspace(np.min(xwork), np.max(xwork), bk)
+        range = (np.max(xwork) - np.min(xwork))/(bk-1)
+        for i in arr:
             # print(np.min(xwork), np.max(xwork))
-            range = (np.max(xwork) - np.min(xwork))/(bk-1)
+
             testvar = np.var(ywork[(maskwork==True) & (xwork >= i) & (xwork < i+range)])
             # if len(invwork[(xwork >= i) & (xwork < i+range)]) < 50:
             #
             #     print(len(invwork[(xwork > i) & (xwork < i+range)]))
+            # if (testvar == 0) or (testvar == np.inf) or (testvar == np.nan):
+            #     testvar = np.var(ywork[(maskwork==True) & (xwork > i-range) & (xwork < i)])
+            # print(testvar, 1/testvar)
+            if ~np.isfinite((1/testvar)):
+                print(testvar, 1/testvar)
+                continue
+                # testvar = np.var(ywork[(maskwork==True) & (xwork >= i-range) & (xwork < i)])
+                # print(f'New testvar: {testvar}')
             invwork[(xwork > i) & (xwork < i+range)] = 1/testvar
 
         goodbk = sset.mask.nonzero()[0]
@@ -790,12 +801,14 @@ def iterfit(xdata, ydata, invvar=None, upper=5, lower=5, x2=None,
                     else:
                         sset.mask[goodbk[ileft]] = False
 
+            print(invwork*maskwork)
+            print(len(invwork*maskwork))
             error, yfit = sset.fit(xwork, ywork, invwork*maskwork,
                                    x2=x2work)
             # print(f'yfit length: {len(yfit)}')
             # print('yfit')
             # print(yfit)
-
+        print(iiter)
         iiter += 1
         inmask = maskwork
         # print(inmask)

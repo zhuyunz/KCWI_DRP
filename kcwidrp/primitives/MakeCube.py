@@ -82,6 +82,17 @@ def make_cube_helper(argument):
 
 class MakeCube(BasePrimitive):
     """Transform 2D images to 3D data cubes"""
+    def locate_object_file(self, suffix):
+        ofn = self.action.args.name
+        objfn = strip_fname(ofn) + f'_{suffix}.fits'
+        full_path = os.path.join(
+            self.config.instrument.cwd,
+            self.config.instrument.output_directory, objfn)
+        if os.path.exists(full_path):
+            return kcwi_fits_reader(full_path)[0]
+        else:
+            self.logger.error(f'Unable to read file {objfn}')
+            return None
 
     def __init__(self, action, context):
         BasePrimitive.__init__(self, action, context)
@@ -114,6 +125,9 @@ class MakeCube(BasePrimitive):
         geom_file = os.path.join(self.config.instrument.cwd,
                                  self.config.instrument.output_directory,
                                  ofn)
+        suffix = 'intk' # Can be ammended to handle ocube files
+        self.action.args.ccddata = self.locate_object_file(suffix)
+        
         if os.path.exists(geom_file):
             self.logger.info("Reading %s" % geom_file)
             with open(geom_file, 'rb') as ifile:
