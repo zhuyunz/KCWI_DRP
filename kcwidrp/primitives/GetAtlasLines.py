@@ -168,7 +168,7 @@ def findpeaks(x, y, wid, sth, ath, pkg=None, verbose=False):
     if len(pks) > 0:
         cln_sgs, low, upp = sigmaclip(sgs, low=3., high=3.)
         for i in range(len(pks)):
-            if low < sgs[i] < upp:
+            if sgs[i] < upp: #if low < sgs[i] < upp:
                 cpks.append(pks[i])
                 cvals.append(hgt[i])
         sgmn = cln_sgs.mean()
