@@ -201,9 +201,9 @@ class Bspline(object):
         else:
             yfit, foo = self.value(xdata, x2=x2, action=a1, upper=upper,
                                    lower=lower)
-            print(errb[0])
-            print(len(errb))
-            print(len(errb[0]))
+            # print(errb[0])
+            # print(len(errb))
+            # print(len(errb[0]))
             return self.maskpoints(errb[0]), yfit
         sol = cholesky_solve(a, beta)
         if self.coeff.ndim == 2:
@@ -760,7 +760,7 @@ def iterfit(xdata, ydata, invvar=None, upper=5, lower=5, x2=None,
         #     testvar = np.var(ywork[(maskwork==True) & (xwork > fullbkpt[i]) & (xwork < fullbkpt[i+1])])
         #     invwork[(xwork > fullbkpt[i]) & (xwork < fullbkpt[i+1])] = 1/testvar
         bk = 1000
-        print(bk)
+        # print(bk)
         arr = np.linspace(np.min(xwork), np.max(xwork), bk)
         range = (np.max(xwork) - np.min(xwork))/(bk-1)
         for i in arr:
@@ -774,7 +774,7 @@ def iterfit(xdata, ydata, invvar=None, upper=5, lower=5, x2=None,
             #     testvar = np.var(ywork[(maskwork==True) & (xwork > i-range) & (xwork < i)])
             # print(testvar, 1/testvar)
             if ~np.isfinite((1/testvar)):
-                print(testvar, 1/testvar)
+                # print(testvar, 1/testvar)
                 continue
                 # testvar = np.var(ywork[(maskwork==True) & (xwork >= i-range) & (xwork < i)])
                 # print(f'New testvar: {testvar}')
@@ -801,14 +801,14 @@ def iterfit(xdata, ydata, invvar=None, upper=5, lower=5, x2=None,
                     else:
                         sset.mask[goodbk[ileft]] = False
 
-            print(invwork*maskwork)
-            print(len(invwork*maskwork))
+            # print(invwork*maskwork)
+            # print(len(invwork*maskwork))
             error, yfit = sset.fit(xwork, ywork, invwork*maskwork,
                                    x2=x2work)
             # print(f'yfit length: {len(yfit)}')
             # print('yfit')
             # print(yfit)
-        print(iiter)
+        print(f'Iteration: {iiter+1}')
         iiter += 1
         inmask = maskwork
         # print(inmask)

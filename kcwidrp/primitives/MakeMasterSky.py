@@ -215,14 +215,15 @@ class MakeMasterSky(BaseImg):
 
         name = self.action.args.name.replace('.fits', '')
 
-        self.logger.info(f"Saving B-spline parameters to: {os.path.join(self.config.instrument.cwd, 'redux')}/{name}_bspline_tab.txt")
-        ascii.write(bspline_tab, f"{os.path.join(self.config.instrument.cwd, 'redux')}/{name}_bspline_tab.txt")
+        if self.config.instrument.save_bspline_params:
+            self.logger.info(f"Saving B-spline parameters to: {os.path.join(self.config.instrument.cwd, 'redux')}/{name}_bspline_tab.txt")
+            ascii.write(bspline_tab, f"{os.path.join(self.config.instrument.cwd, 'redux')}/{name}_sky_model.txt", overwrite=True)
 
-        self.logger.info(f"Saving B-spline breakpoints to: {os.path.join(self.config.instrument.cwd, 'redux')}/{name}_bspline_bkpts.txt")
-        ascii.write(bspline_bkpts, f"{os.path.join(self.config.instrument.cwd, 'redux')}/{name}_bspline_bkpts.txt")
+            self.logger.info(f"Saving B-spline breakpoints to: {os.path.join(self.config.instrument.cwd, 'redux')}/{name}_bspline_bkpts.txt")
+            ascii.write(bspline_bkpts, f"{os.path.join(self.config.instrument.cwd, 'redux')}/{name}_sky_bkpts.txt", overwrite=True)
 
         # fluxes_test = fluxes[((waves < 5197) & (waves > 5201)) | ((waves < 5574) | (waves > 5581))]
-
+        self.logger.info(f"Divide by zero errors are normal in inverse variance calculation")
         sft0, gmask = Bspline.iterfit(waves, fluxes, fullbkpt=bkpt,
                                       upper=1, lower=1, maxiter=4)
         gp = [i for i, v in enumerate(gmask) if v]
