@@ -1,13 +1,18 @@
 """
-KCWI
+Class definition for the KCWI Pipeline
 
-@author: lrizzi
+The event_table defines the recipes with each type of image having a unique
+entry point and trajectory in the table.
+
+The action_planner sets up the parameters for each image type before the event
+queue in the KeckDRPFramework gets started.
+
+@author: lrizzi, jneill
 """
 
 from keckdrpframework.pipelines.base_pipeline import BasePipeline
 from keckdrpframework.models.processing_context import ProcessingContext
 from kcwidrp.primitives.kcwi_file_primitives import *
-from kcwidrp.core.kcwi_proctab import Proctab
 
 
 class Kcwi_pipeline(BasePipeline):
@@ -29,22 +34,21 @@ class Kcwi_pipeline(BasePipeline):
                                       "ingest_file_started",
                                       "file_ingested"),
         "file_ingested":             ("action_planner", None, None),
-
         # OBJECT PROCESSING
         "process_object":            ("ProcessObject",
                                       "object_processing_started",
                                       "object_wavelengthcorr"),
         "object_wavelengthcorr":     ("WavelengthCorrections",
-                                      "wavelength_correction_started",
+                                      "wavelength_correction_started",  # icubew
                                       "object_correct_dar"),
         "object_correct_dar":        ("CorrectDar",
-                                      "correcting_dar_started",
+                                      "correcting_dar_started",     # icubed
                                       "object_make_invsens"),
         "object_make_invsens":       ("MakeInvsens",
                                       "make_invsens_started",
                                       "object_flux_calibrate"),
         "object_flux_calibrate":     ("FluxCalibrate",
-                                      "flux_calibration_started",
+                                      "flux_calibration_started",   # icubes
                                       None),
         "next_file_stop":            ("ingest_file", "file_ingested", None)
     }
@@ -59,27 +63,44 @@ class Kcwi_pipeline(BasePipeline):
         self.cnt = 0
 
     def add_to_dataframe_only(self, action, context):
+        self.context.pipeline_logger.info("******* ADD to DATAFRAME ONLY: %s" % action.args.name)
         return action.args
 
     def action_planner(self, action, context):
         try:
-            self.context.pipeline_logger.info("******* FILE TYPE DETERMINED AS %s" %
-                             action.args.imtype)
-        except:
-            self.context.pipeline_logger.warn("******* FILE TYPE is NOT determined. No processing is possible.")
+            self.context.pipeline_logger.info(
+                "******* FILE TYPE DETERMINED AS %s" % action.args.imtype)
+        except (AttributeError, TypeError, ValueError):
+            self.context.pipeline_logger.warn(
+                "******* FILE TYPE is NOT determined. "
+                "No processing is possible.")
             return False
 
         groupid = action.args.groupid
-        self.context.pipeline_logger.info("******* GROUPID is %s " % action.args.groupid)
-        self.context.pipeline_logger.info("******* STATEID is %s (%s) " % (action.args.ccddata.header["STATENAM"], action.args.ccddata.header["STATEID"]))
+        camera = action.args.ccddata.header['CAMERA'].upper()
+        self.context.pipeline_logger.info("******* GROUPID is %s " %
+                                          action.args.groupid)
+        self.context.pipeline_logger.info(
+            "******* STATEID is %s (%s) " %
+            (action.args.ccddata.header["STATENAM"],
+             action.args.ccddata.header["STATEID"]))
+        self.context.pipeline_logger.info("******* CAMERA is %s " % camera)
         if action.args.in_proctab:
-            self.context.pipeline_logger.warn("Already processed (already in proctab)")
+            if len(action.args.last_suffix) > 0:
+                self.context.pipeline_logger.warn(
+                    "Already processed (already in proctab up to %s)" %
+                    action.args.last_suffix)
+            else:
+                self.context.pipeline_logger.warn(
+                    "Already processed (already in proctab)")
         if action.args.in_proctab and not context.config.instrument.clobber:
             self.context.pipeline_logger.warn("Pushing noop to queue")
             context.push_event("noop", action.args)
         elif "BIAS" in action.args.imtype:
             if action.args.ttime > 0:
-                self.context.pipeline_logger.warn(f"BIAS frame with exposure time = {action.args.ttime} > 0. Discarding.")
+                self.context.pipeline_logger.warn(
+                    f"BIAS frame with exposure time = {action.args.ttime} "
+                    f"> 0. Discarding.")
                 return False
             bias_args = action.args
             bias_args.groupid = groupid
@@ -98,7 +119,15 @@ class Kcwi_pipeline(BasePipeline):
             dark_args.in_directory = "redux"
             context.push_event("process_dark", dark_args)
         elif "CONTBARS" in action.args.imtype:
-            context.push_event("process_contbars", action.args)
+            contbars_args = action.args
+            contbars_args.groupid = groupid
+            contbars_args.want_type = "CONTBARS"
+            contbars_args.new_type = "MCBARS"
+            contbars_args.min_files = \
+                context.config.instrument.contbars_min_nframes
+            contbars_args.new_file_name = "master_contbars_%s.fits" % groupid
+            contbars_args.in_directory = "redux"
+            context.push_event("process_contbars", contbars_args)
         elif "FLATLAMP" in action.args.imtype:
             flat_args = action.args
             flat_args.groupid = groupid
@@ -130,13 +159,24 @@ class Kcwi_pipeline(BasePipeline):
             flat_args.in_directory = "redux"
             context.push_event("process_flat", flat_args)
         elif "ARCLAMP" in action.args.imtype:
-            context.push_event("process_arc", action.args)
+            arc_args = action.args
+            arc_args.groupid = groupid
+            arc_args.want_type = "ARCLAMP"
+            arc_args.new_type = "MARC"
+            arc_args.min_files = context.config.instrument.arc_min_nframes
+            arc_args.new_file_name = "master_arc_%s.fits" % groupid
+            arc_args.in_directory = "redux"
+            context.push_event("process_arc", arc_args)
         elif "OBJECT" in action.args.imtype:
             if action.args.nasmask and action.args.numopen > 1:
                 context.push_event("process_nandshuff", action.args)
             else:
                 object_args = action.args
-                object_args.new_type = "SKY"
+                # object_args.new_type = "SKY"
+                object_args.new_type = "MOBJ"
+                object_args.min_files = \
+                    context.config.instrument.object_min_nframes
+                object_args.in_directory = "redux"
                 context.push_event("process_object", object_args)
         return True
 
