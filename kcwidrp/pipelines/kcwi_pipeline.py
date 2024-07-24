@@ -307,9 +307,12 @@ class Kcwi_pipeline(BasePipeline):
                                       "nandshuff_make_cube"),
         "nandshuff_make_cube":       ("MakeCube",
                                       "making_cube_started",        # icube
+<<<<<<< HEAD
                                       "nandshuff_wavelengthcorr"),
         "nandshuff_wavelengthcorr":  ("WavelengthCorrections",
                                       "wavelength_correction_started",  # icubew
+=======
+>>>>>>> intermediate/kcrm_yc_dev
                                       "nandshuff_correct_dar"),
         "nandshuff_correct_dar":     ("CorrectDar",
                                       "correcting_dar_started",     # icubed

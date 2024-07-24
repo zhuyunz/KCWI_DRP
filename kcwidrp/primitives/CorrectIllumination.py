@@ -28,19 +28,19 @@ class CorrectIllumination(BasePrimitive):
         self.action.args.master_flat = None
         self.logger.info("Checking precondition for CorrectIllumination")
         # first check for internal flat
-        target_type = 'MFLAT'
+        target_type = self.config.instrument.flat_order[0]
         tab = self.context.proctab.search_proctab(
             frame=self.action.args.ccddata, target_type=target_type,
             nearest=True)
         if len(tab) <= 0:
             # next look for twilight flat
-            target_type = 'MTWIF'
+            target_type = self.config.instrument.flat_order[1]
             tab = self.context.proctab.search_proctab(
                 frame=self.action.args.ccddata, target_type=target_type,
                 nearest=True)
             if len(tab) <= 0:
                 # finally look for dome flat
-                target_type = 'MDOME'
+                target_type = self.config.instrument.flat_order[2]
                 tab = self.context.proctab.search_proctab(
                     frame=self.action.args.ccddata, target_type=target_type,
                     nearest=True)
@@ -77,6 +77,9 @@ class CorrectIllumination(BasePrimitive):
 
             # do the correction
             self.action.args.ccddata.data *= mflat.data
+            self.action.args.ccddata.flags += mflat.flags
+            if self.action.args.ccddata.uncertainty is not None:
+                self.action.args.ccddata.uncertainty.array *= mflat.data
 
             # update header keywords
             self.action.args.ccddata.header[key] = (True, keycom)

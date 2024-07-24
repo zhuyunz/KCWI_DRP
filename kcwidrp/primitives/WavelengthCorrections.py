@@ -126,7 +126,7 @@ class WavelengthCorrections(BasePrimitive):
                     f_cubic = interp1d(
                         wave_vac,
                         spec0,
-                        kind='cubic',
+                        kind=self.config.instrument.wave_interp_order,
                         fill_value='extrapolate'
                         )
                     spec_new = f_cubic(wave_air)
@@ -288,7 +288,7 @@ class WavelengthCorrections(BasePrimitive):
 
                 spc0 = cube[:, j, i]
                 if not mask:
-                    f_cubic = interp1d(wav_hel, spc0, kind='cubic',
+                    f_cubic = interp1d(wav_hel, spc0, kind=self.config.instrument.wave_interp_order,
                                        fill_value='extrapolate')
                     spec_new = f_cubic(wav_old)
 
