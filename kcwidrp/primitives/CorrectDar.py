@@ -91,7 +91,8 @@ class CorrectDar(BasePrimitive):
         waves = w0 + np.arange(image_size[0]) * dw
         wgoo0 = self.action.args.ccddata.header['WAVGOOD0']
         wgoo1 = self.action.args.ccddata.header['WAVGOOD1']
-        wref = self.action.args.ccddata.header['WAVMID']
+        # wref = self.action.args.ccddata.header['WAVMID']
+        wref = 4577.904649636944
         self.logger.info("Ref WL = %.1f, good WL range = (%.1f - %.1f)" %
                          (wref, wgoo0, wgoo1))
 
@@ -253,10 +254,14 @@ class CorrectDar(BasePrimitive):
                                           (y_shift, x_shift), order=self.config.instrument.DAR_shift_order)
             output_stddev[j, :, :] = shift(output_stddev[j, :, :],
                                            (y_shift, x_shift), order=self.config.instrument.DAR_shift_order)
-            output_mask[j, :, :] = shift(output_mask[j, :, :],
-                                         (y_shift, x_shift), order=1, mode='constant', cval=128)
-            output_flags[j, :, :] = shift(output_flags[j, :, :],
-                                          (y_shift, x_shift), order=1, mode='constant', cval=128)
+            # output_mask[j, :, :] = shift(output_mask[j, :, :],
+            #                              (y_shift, x_shift), order=1, mode='constant', cval=128)
+            # output_flags[j, :, :] = shift(output_flags[j, :, :],
+            #                               (y_shift, x_shift), order=1, mode='constant', cval=128)
+            output_mask[j, :, :] = np.ceil(shift(output_mask[j, :, :], (y_shift,
+                                                                x_shift), order=1, mode = 'constant', cval=128))
+            output_flags[j, :, :] = np.ceil(shift(output_flags[j, :, :], (y_shift,
+                                                                  x_shift), order=1, mode = 'constant', cval=128))
             if output_noskysub is not None:
                 output_noskysub[j, :, :] = shift(output_noskysub[j, :, :],
                                                  (y_shift, x_shift))

@@ -280,11 +280,7 @@ class MakeInvsens(BasePrimitive):
         if len(zeros) > 0:
             obsmean = np.nanmean(obsspec)
             obsspec[zeros] = obsmean
-<<<<<<< HEAD
         # read in standard star reference spectrum
-=======
-        # read in standard star spectrum
->>>>>>> intermediate/kcrm_yc_dev
         stdfile = self.action.args.stdfile
         hdul = pf.open(stdfile)
         swl = hdul[1].data['WAVELENGTH']

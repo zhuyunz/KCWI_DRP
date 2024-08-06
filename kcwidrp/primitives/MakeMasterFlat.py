@@ -435,12 +435,8 @@ class MakeMasterFlat(BaseImg):
                 trm = int(len(deriv)/5)
                 deriv = deriv[trm:-trm]
                 xvals = fpoints[trm:-trm]
-<<<<<<< HEAD
                 peaks, _ = find_peaks(deriv, height=20)
                 self.logger.info("%d Peak(s) found" % len(peaks))
-=======
-                peaks, _ = find_peaks(deriv, height=100)
->>>>>>> intermediate/kcrm_yc_dev
 
                 p = figure(title=plab +
                            ' Ledge', x_axis_label='Wavelength (A)',
@@ -449,11 +445,8 @@ class MakeMasterFlat(BaseImg):
                            plot_height=self.config.instrument.plot_height)
                 p.circle(xledge, smyledge, fill_color='green')
                 p.line(fpoints, ylfit)
-<<<<<<< HEAD
                 ylim = get_plot_lims(ylfit)
                 p.line([ledge_wave, ledge_wave], ylim, color='red')
-=======
->>>>>>> intermediate/kcrm_yc_dev
                 bokeh_plot(p, self.context.bokeh_session)
                 if self.config.instrument.plot_level >= 2:
                     input("Next? <cr>: ")
@@ -467,20 +460,12 @@ class MakeMasterFlat(BaseImg):
                 xx = list(range(len(deriv)))
                 ylim = get_plot_lims(deriv)
                 p.circle(xx, deriv)
-<<<<<<< HEAD
                 p.line([len(xx)/2, len(xx)/2], ylim, color='green')
                 for pk in peaks:
                     p.line([pk, pk], ylim, color='red')
                 bokeh_plot(p, self.context.bokeh_session)
                 if len(peaks) != 1:
                     self.logger.warning("Single peak not found!")
-=======
-                for pk in peaks:
-                    p.line([pk, pk], ylim)
-                bokeh_plot(p, self.context.bokeh_session)
-                if len(peaks) != 1:
-                    self.logger.warning("Extra peak found!")
->>>>>>> intermediate/kcrm_yc_dev
                     print("Please indicate the integer pixel value of the peak")
                     spk = input("Peak? <int>: ")
                     while not spk.isnumeric():
